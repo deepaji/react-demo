@@ -3,7 +3,10 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 // import styles from "./Home.css";
 import PusherJS from "pusher-js";
-import TableHeader, { Container, Table } from "semantic-ui-react";
+import { Container, Table, Button } from "semantic-ui-react";
+
+// Renderer needs to use .remote
+let {BrowserWindow} = require('electron').remote
 
 type Props = {};
 
@@ -21,6 +24,9 @@ export default class Pusher extends Component<Props> {
       url: null,
       notifications: []
     };
+
+    this.handleLinkClick = this.handleLinkClick.bind(this)
+    this.handleDismissClick = this.handleDismissClick.bind(this)
   }
 
   componentWillMount() {
@@ -70,13 +76,44 @@ export default class Pusher extends Component<Props> {
   //   return result;
   // }
 
+  handleLinkClick(e) {
+    e.preventDefault()
+
+    let win = new BrowserWindow({width: 800, height: 600})
+    win.on('closed', () => {
+      win = null
+    })
+
+    // Load a remote URL
+    win.loadURL(e.target.href)
+
+    // Or load a local HTML file
+    // win.loadURL(`file://${__dirname}/app/index.html`)
+  }
+
+  handleDismissClick(e) {
+    let id = e.target.attributes['itemid'].value
+
+    let notifications = this.state.notifications
+    let item = notifications.find(item => item.id === id)
+
+    if(item) {
+      item.dismiss = true
+      this.setState({notifications})
+    }
+  }
+
   renderNotificationsList(list) {
     let result = list.map((item, index) => {
       return (
-        <Table.Row id={index}>
-          <Table.Cell width={6}>{item.message}</Table.Cell>
-          <Table.Cell width={6}>{item.url}</Table.Cell>
-          <Table.Cell width={4}>SOME ACTIONS</Table.Cell>
+        <Table.Row key={index} negative={item.dismiss}>
+          <Table.Cell>{item.id}</Table.Cell>
+          <Table.Cell>{item.date}</Table.Cell>
+          <Table.Cell>{item.message}</Table.Cell>
+          <Table.Cell><a href={item.url} onClick={this.handleLinkClick}>{item.url}</a></Table.Cell>
+          <Table.Cell>
+            <Button itemID={item.id} disabled={item.dismiss} onClick={this.handleDismissClick}>Dismiss</Button>
+          </Table.Cell>
         </Table.Row>
       );
     });
@@ -85,9 +122,6 @@ export default class Pusher extends Component<Props> {
   }
 
   render() {
-    let message = this.state.data ? this.state.data.message : "No Message";
-    let url = this.state.url;
-
     return (
       <Container data-tid="container">
         <h2>Pusher</h2>
@@ -96,9 +130,11 @@ export default class Pusher extends Component<Props> {
         <Table>
           <Table.Header>
             <Table.Row>
-              <Table.HeaderCell width={6}>Message</Table.HeaderCell>
-              <Table.HeaderCell width={6}>URL</Table.HeaderCell>
-              <Table.HeaderCell width={4}>Actions</Table.HeaderCell>
+              <Table.HeaderCell width={6}>Id</Table.HeaderCell>
+              <Table.HeaderCell width={2}>Timestamp</Table.HeaderCell>
+              <Table.HeaderCell width={5}>Message</Table.HeaderCell>
+              <Table.HeaderCell width={4}>URL</Table.HeaderCell>
+              <Table.HeaderCell width={3}>Actions</Table.HeaderCell>
             </Table.Row>
           </Table.Header>
 

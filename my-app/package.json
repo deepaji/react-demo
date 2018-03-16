@@ -6,9 +6,11 @@
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-scripts": "1.1.1",
+    "semantic-ui-react": "^0.78.3",
     "superagent": "^3.8.2"
   },
   "scripts": {
+    "dev": "npm run start",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",

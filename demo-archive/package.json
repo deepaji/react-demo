@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "node src/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -12,6 +13,7 @@
     "cors": "^2.8.4",
     "express": "^4.16.3",
     "pusher": "^1.5.1",
-    "react": "^16.2.0"
+    "react": "^16.2.0",
+    "uuid": "^3.2.1"
   }
 }

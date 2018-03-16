@@ -1,5 +1,6 @@
 let Pusher = require("pusher");
 let config = require("./config");
+let uuidV4 = require('uuid/v4')
 
 const channelName = "mychannel";
 const eventName = "myevent";
@@ -21,6 +22,8 @@ class Notify {
       channelName,
       eventName,
       {
+        id: uuidV4(),
+        date: Date.now(),
         message: msg,
         url: url
       },

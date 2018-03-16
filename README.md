@@ -1,6 +1,6 @@
 # Express Server doing Push
 
-demo-archive -> node src/server.js
+demo-archive -> npm run dev
 
 # React UI for Push Message Creation
 
