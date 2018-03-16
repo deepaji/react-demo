@@ -71,9 +71,9 @@ export default class Pusher extends Component<Props> {
   // }
 
   renderNotificationsList(list) {
-    let result = list.map(item => {
+    let result = list.map((item, index) => {
       return (
-        <Table.Row>
+        <Table.Row id={index}>
           <Table.Cell width={6}>{item.message}</Table.Cell>
           <Table.Cell width={6}>{item.url}</Table.Cell>
           <Table.Cell width={4}>SOME ACTIONS</Table.Cell>
