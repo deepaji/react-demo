@@ -14,9 +14,11 @@ app.get("/notify", (req, res) => {
   if (!req.query.message) {
     return res.status(400).send("Message not specified");
   }
-
+  if (!req.query.url) {
+    return res.status(400).send("URL not specified");
+  }
   try {
-    notify.triggerNotification(req.query.message);
+    notify.triggerNotification(req.query.message, req.query.url);
     res.send("SUCCESS");
   } catch (e) {
     console.error(e);
