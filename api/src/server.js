@@ -1,10 +1,17 @@
 let express = require("express");
 let cors = require("cors");
 let notify = require("./notify");
+let bodyParser = require("body-parser");
 let app = express();
+let userRoute = require("./controllers/user.api");
+let database = require("./database");
 
 app.use(cors());
+app.use(bodyParser.json());
+
 app.use(express.static("dist/public"));
+
+app.use("/api/user", userRoute);
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -27,5 +34,5 @@ app.get("/notify", (req, res) => {
 });
 
 app.listen(3000, () => {
-  console.log("Webserver is running...");
+  console.log("Webserver is running on port 3000...");
 });
