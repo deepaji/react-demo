@@ -6,7 +6,7 @@ import { configureStore, history } from "./store/configureStore";
 // import './app.global.css';
 // import "./semantic-ui-css/semantic.min.css";
 
-const store = configureStore();
+const store = configureStore({ isAuthenticated: false, counter: 1 });
 
 render(
   <AppContainer>

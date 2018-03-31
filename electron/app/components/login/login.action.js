@@ -1,6 +1,6 @@
-export default function Login(email) {
+export function LoginAction(status) {
   return {
     type: "LOGIN",
-    email
+    status
   };
 }

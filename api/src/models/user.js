@@ -6,7 +6,7 @@ let userSchema = new mongoose.Schema(
     user_id: {
       type: String,
       required: false,
-      unique: true,
+      unique: false,
       validate: value => {
         return validator.isAlphanumeric(value);
       }
@@ -16,8 +16,11 @@ let userSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      validate: value => {
-        return validator.isLowercase(value);
+      validate: {
+        validator: value => {
+          return validator.isEmail(value);
+        },
+        message: "{VALUE} is not a valid email"
       }
     }
   },

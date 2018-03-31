@@ -1,7 +1,7 @@
-export default function login(state = "", action) {
+export function login(state = null, action) {
   switch (action.type) {
     case "LOGIN":
-      return "LOGIN FAILED";
+      return action.status;
     default:
       return state;
   }
