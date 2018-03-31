@@ -17,23 +17,25 @@ import { connect } from "react-redux";
 
 // const SomeHigherOrderComponent = connect(mapStateToProps, null)(SomeComponent);
 
-const PrivateRoute = props => {
+const PrivateRoute = ({ component: Component, isAuthenticated, ...rest }) => {
   //let { component: Component, isAuthenticated, ...rest } = props
 
   // let Component = props.component
   // let isAuthenticated = props.isAuthenticated
 
-  console.log(props.isAuthenticated);
+  // return <Redirect to="/login" />;
+
+  // console.log(props.isAuthenticated);
   return (
     <Route
-      {...props}
-      render={props =>
-        props.isAuthenticated ? (
+      {...rest}
+      render={props => {
+        return isAuthenticated === true ? (
           <Component {...props} />
         ) : (
           <Redirect to="/login" />
-        )
-      }
+        );
+      }}
     />
   );
 };

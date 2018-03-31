@@ -47,8 +47,9 @@ class Login extends Component {
   render() {
     // true or false
     // 1 or 0
-    console.log(this.props.loginStatus);
-    if (this.props.loginStatus) {
+    debugger;
+    console.log(this.props.isAuthenticated);
+    if (this.props.isAuthenticated) {
       // print something
       return <Redirect to="/" />;
     }
@@ -78,9 +79,9 @@ class Login extends Component {
   }
 }
 
-function mapStateToProps(state) {
+function mapGlobalStateToProps(globalState) {
   return {
-    loginStatus: state.isAuthenticated
+    isAuthenticated: globalState.isAuthenticated
   };
 }
 
@@ -89,5 +90,5 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators(ActionCreators, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
+export default connect(mapGlobalStateToProps, mapDispatchToProps)(Login);
 //export default connect(mapStateToProps, { LoginAction })(Login);
