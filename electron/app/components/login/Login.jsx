@@ -47,7 +47,6 @@ class Login extends Component {
   render() {
     // true or false
     // 1 or 0
-    debugger;
     console.log(this.props.isAuthenticated);
     if (this.props.isAuthenticated) {
       // print something

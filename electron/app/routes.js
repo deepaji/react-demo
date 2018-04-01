@@ -1,13 +1,13 @@
 /* eslint flowtype-errors/show-errors: 0 */
-import React from "react";
-import { Switch, Route } from "react-router";
-import App from "./containers/App";
-import HomePage from "./containers/HomePage";
-import CounterPage from "./containers/CounterPage";
-import PusherPage from "./containers/PusherPage";
-import Login from "./components/login/Login";
-import { Redirect } from "react-router";
-import { connect } from "react-redux";
+import React, {Component} from 'react'
+import { Switch, Route } from 'react-router'
+import App from './containers/App'
+import HomePage from './containers/HomePage'
+import CounterPage from './containers/CounterPage'
+import PusherPage from './containers/PusherPage'
+import Login from './components/login/Login'
+import { Redirect, withRouter } from 'react-router'
+import { connect } from 'react-redux'
 
 // const SomeComponent = props => {
 //   return `THIS IS SOME COMPONENT: ${props.isAuthenticated}`;
@@ -17,7 +17,7 @@ import { connect } from "react-redux";
 
 // const SomeHigherOrderComponent = connect(mapStateToProps, null)(SomeComponent);
 
-const PrivateRoute = ({ component: Component, isAuthenticated, ...rest }) => {
+export const PrivateRoute = ({component: Component, isAuthenticated, ...rest}) => {
   //let { component: Component, isAuthenticated, ...rest } = props
 
   // let Component = props.component
@@ -33,28 +33,39 @@ const PrivateRoute = ({ component: Component, isAuthenticated, ...rest }) => {
         return isAuthenticated === true ? (
           <Component {...props} />
         ) : (
-          <Redirect to="/login" />
-        );
+          <Redirect to="/login"/>
+        )
       }}
     />
-  );
-};
+  )
+}
 
-const Routes = props => (
-  <App>
-    <Switch>
-      <Route path="/login" component={Login} />
-      <PrivateRoute path="/counter" component={CounterPage} {...props} />
-      <PrivateRoute path="/pusher" component={PusherPage} {...props} />
-      <PrivateRoute path="/" component={HomePage} {...props} />
-    </Switch>
-  </App>
-);
+export class Routes extends Component {
+  constructor (props) {
+    super(props)
+  }
+
+  render () {
+    console.log(this.props)
+    return (
+      <App>
+        <Switch>
+          <Route path="/login" component={Login}/>
+          <PrivateRoute path="/counter" component={CounterPage} {...this.props} />
+          <PrivateRoute path="/pusher" component={PusherPage} {...this.props} />
+          <PrivateRoute path="/" component={HomePage} {...this.props} />
+        </Switch>
+      </App>
+    )
+  }
+}
 
 const mapStateToProps = state => {
   return {
     isAuthenticated: state.isAuthenticated
-  };
-};
+  }
+}
 
-export default connect(mapStateToProps, null)(Routes);
+// export default Routes
+
+export default withRouter(connect(mapStateToProps, null)(Routes))
