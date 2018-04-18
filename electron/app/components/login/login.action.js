@@ -1,6 +1,7 @@
-export function LoginAction(status) {
+export function LoginAction(status, email) {
   return {
     type: "LOGIN",
-    status
+    status,
+    email
   };
 }

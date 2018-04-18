@@ -2,8 +2,8 @@ import React, { Component } from "react";
 import Divider, { Button, Checkbox, Form } from "semantic-ui-react";
 import { connect } from "react-redux";
 import { LoginAction } from "./login.action";
-import * as ActionCreators from "./login.action";
-import { bindActionCreators } from "redux";
+// import * as ActionCreators from "./login.action";
+// import { bindActionCreators } from "redux";
 import loginClient from "./login.client";
 //type Props = { login: () => void }; //added by Deepa
 import { Redirect } from "react-router";
@@ -37,11 +37,11 @@ class Login extends Component {
     loginClient
       .login(this.state.email)
       .then(res => {
-        this.props.LoginAction(true);
+        this.props.LoginAction(true, this.state.email);
       })
       .catch(err => {
         console.error(err);
-        this.props.LoginAction(false);
+        this.props.LoginAction(false, this.state.email);
       });
   }
   render() {
@@ -80,14 +80,14 @@ class Login extends Component {
 
 function mapGlobalStateToProps(globalState) {
   return {
-    isAuthenticated: globalState.isAuthenticated
+    isAuthenticated: globalState.auth.status
   };
 }
 
-function mapDispatchToProps(dispatch) {
-  console.log(ActionCreators);
-  return bindActionCreators(ActionCreators, dispatch);
-}
+// function mapDispatchToProps(dispatch) {
+//   console.log(ActionCreators);
+//   return bindActionCreators(ActionCreators, dispatch);
+// }
 
-export default connect(mapGlobalStateToProps, mapDispatchToProps)(Login);
-//export default connect(mapStateToProps, { LoginAction })(Login);
+//export default connect(mapGlobalStateToProps, mapDispatchToProps)(Login);
+export default connect(mapGlobalStateToProps, { LoginAction })(Login);

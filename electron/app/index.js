@@ -6,9 +6,16 @@ import { configureStore, history } from "./store/configureStore";
 import { ipcRenderer } from "electron";
 
 ipcRenderer.on("getMachineId-reply", (event, arg) => {
+  window.meta = {
+    machineId: arg
+  };
+
   const store = configureStore({
     counter: 1,
-    isAuthenticated: false
+    auth: {
+      status: false,
+      email: ""
+    }
   });
 
   render(

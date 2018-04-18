@@ -1,6 +1,6 @@
 let Pusher = require("pusher");
 let config = require("./config");
-let uuidV4 = require('uuid/v4')
+let uuidV4 = require("uuid/v4");
 
 const channelName = "mychannel";
 const eventName = "myevent";
@@ -17,13 +17,18 @@ class Notify {
     this.pusher = new Pusher(config.pusher);
   }
 
-  triggerNotification(msg = "Default message", url = "http://www.google.com") {
+  triggerNotification(
+    id,
+    date,
+    msg = "Default message",
+    url = "http://www.google.com"
+  ) {
     this.pusher.trigger(
       channelName,
       eventName,
       {
-        id: uuidV4(),
-        date: Date.now(),
+        id,
+        date,
         message: msg,
         url: url
       },
@@ -32,8 +37,8 @@ class Notify {
         if (err) {
           console.error(err);
         }
-        console.log(req);
-        console.log(res);
+        //console.log(req);
+        //console.log(res);
       }
     );
   }

@@ -1,32 +1,30 @@
 // @flow
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-// import styles from "./Home.css";
+import { connect } from "react-redux";
+
+import {
+  acceptNotification,
+  addNotification,
+  removeNotification
+} from "./notification/notification.action";
+
 import PusherJS from "pusher-js";
 import { Container, Table, Button } from "semantic-ui-react";
 
 // Renderer needs to use .remote
-let {BrowserWindow} = require('electron').remote
+let { BrowserWindow } = require("electron").remote;
 
-type Props = {};
-
-export default class Pusher extends Component<Props> {
-  props: Props;
-
+class Pusher extends Component {
   constructor(props) {
     super(props);
 
     console.log("In constructor");
     PusherJS.logToConsole = true;
 
-    this.state = {
-      data: null,
-      url: null,
-      notifications: []
-    };
-
-    this.handleLinkClick = this.handleLinkClick.bind(this)
-    this.handleDismissClick = this.handleDismissClick.bind(this)
+    this.handleLinkClick = this.handleLinkClick.bind(this);
+    this.handleDismissClick = this.handleDismissClick.bind(this);
+    this.handleAcceptClick = this.handleAcceptClick.bind(this);
   }
 
   componentWillMount() {
@@ -41,12 +39,18 @@ export default class Pusher extends Component<Props> {
       function(data) {
         console.log("Message received: ", data.message);
 
-        let notifications = this.state.notifications.concat(data);
+        //let notifications = this.state.notifications.concat(data);
 
-        this.setState({
+        // this.setState({
+        //   data,
+        //   notifications
+        // });
+
+        this.props.addNotification(
           data,
-          notifications
-        });
+          this.props.email,
+          window.meta.machineId
+        );
 
         // Renderer Notification
         let myNotification = new Notification("Message Received", {
@@ -56,9 +60,9 @@ export default class Pusher extends Component<Props> {
         myNotification.onclick = () => {
           console.log("Notification clicked");
 
-          this.setState({
-            url: this.state.data.url
-          });
+          // this.setState({
+          //   url: this.state.data.url
+          // });
         };
       }.bind(this)
     );
@@ -77,29 +81,46 @@ export default class Pusher extends Component<Props> {
   // }
 
   handleLinkClick(e) {
-    e.preventDefault()
+    e.preventDefault();
 
-    let win = new BrowserWindow({width: 800, height: 600})
-    win.on('closed', () => {
-      win = null
-    })
+    let win = new BrowserWindow({ width: 800, height: 600 });
+    win.on("closed", () => {
+      win = null;
+    });
 
     // Load a remote URL
-    win.loadURL(e.target.href)
+    win.loadURL(e.target.href);
 
     // Or load a local HTML file
     // win.loadURL(`file://${__dirname}/app/index.html`)
   }
 
+  handleAcceptClick(e) {
+    let id = e.target.attributes["itemid"].value;
+
+    let notifications = this.props.notificationList;
+    let item = notifications.find(item => item.id === id);
+
+    if (item) {
+      //item.dismiss = true;
+      //this.props.updateNotification(item, { dismiss: true });
+      //this.setState({ notifications });
+      this.props.acceptNotification(
+        item,
+        this.props.email,
+        window.meta.machineId
+      );
+    }
+  }
+
   handleDismissClick(e) {
-    let id = e.target.attributes['itemid'].value
+    let id = e.target.attributes["itemid"].value;
 
-    let notifications = this.state.notifications
-    let item = notifications.find(item => item.id === id)
+    let notifications = this.props.notificationList;
+    let item = notifications.find(item => item.id === id);
 
-    if(item) {
-      item.dismiss = true
-      this.setState({notifications})
+    if (item) {
+      this.props.removeNotification(item);
     }
   }
 
@@ -110,9 +131,26 @@ export default class Pusher extends Component<Props> {
           <Table.Cell>{item.id}</Table.Cell>
           <Table.Cell>{item.date}</Table.Cell>
           <Table.Cell>{item.message}</Table.Cell>
-          <Table.Cell><a href={item.url} onClick={this.handleLinkClick}>{item.url}</a></Table.Cell>
           <Table.Cell>
-            <Button itemID={item.id} disabled={item.dismiss} onClick={this.handleDismissClick}>Dismiss</Button>
+            <a href={item.url} onClick={this.handleLinkClick}>
+              {item.url}
+            </a>
+          </Table.Cell>
+          <Table.Cell>
+            <Button
+              itemID={item.id}
+              disabled={item.dismiss}
+              onClick={this.handleAcceptClick}
+            >
+              Accept
+            </Button>
+            <Button
+              itemID={item.id}
+              disabled={item.dismiss}
+              onClick={this.handleDismissClick}
+            >
+              Dismiss
+            </Button>
           </Table.Cell>
         </Table.Row>
       );
@@ -139,7 +177,7 @@ export default class Pusher extends Component<Props> {
           </Table.Header>
 
           <Table.Body>
-            {this.renderNotificationsList(this.state.notifications)}
+            {this.renderNotificationsList(this.props.notificationList)}
           </Table.Body>
         </Table>
       </Container>
@@ -165,3 +203,16 @@ export default class Pusher extends Component<Props> {
     }
   }
 }
+
+function mapGlobalStateToProps(globalState) {
+  return {
+    email: globalState.auth.email,
+    notificationList: globalState.notifications
+  };
+}
+
+export default connect(mapGlobalStateToProps, {
+  acceptNotification,
+  addNotification,
+  removeNotification
+})(Pusher);

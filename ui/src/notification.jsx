@@ -26,7 +26,7 @@ export default class Notification extends React.Component {
   handleNotify(event) {
     // http://localhost:3000/notify?message=hello%20world
     request
-      .get("http://localhost:3000/notify")
+      .get("http://localhost:3000/api/notify")
       .query({
         message: this.state.message,
         url: this.state.url
