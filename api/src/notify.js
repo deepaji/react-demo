@@ -20,6 +20,7 @@ class Notify {
   triggerNotification(
     id,
     date,
+    type,
     msg = "Default message",
     url = "http://www.google.com"
   ) {
@@ -30,7 +31,8 @@ class Notify {
         id,
         date,
         message: msg,
-        url: url
+        url: url,
+        type: type
       },
       null,
       function(err, req, res) {

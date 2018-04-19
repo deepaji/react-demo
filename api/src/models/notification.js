@@ -26,8 +26,13 @@ let notificationSchema = new mongoose.Schema(
       required: true
     },
 
+    url: String,
+
     // ACTION
-    action: { type: String },
+    type: {
+      type: String,
+      enum: ["status-check", "info"]
+    },
     // TIMESTAMP_SENT
     time_sent: { type: Date, required: true, default: Date.now },
     // EXPIRATION DATE

@@ -4,22 +4,28 @@ let express = require("express");
 let router = express.Router();
 let pusher = require("../notify");
 
-router.get("/", (req, res) => {
-  if (!req.query.message) {
-    return res.status(400).send("Message is not specified");
-  }
-  if (!req.query.url) {
-    return res.status(400).send("URL is not specified");
-  }
-  if (!req.query.expiration_date) {
-    return res.status(400).send("Expiration Date is not specified");
-  }
+router.post("/", (req, res) => {
   try {
+    if (!req.body.message) {
+      throw new Error("Message is not specified");
+    }
+    if (!req.body.url) {
+      throw new Error("URL is not specified");
+    }
+    // if (!req.body.expiration_date) {
+    //   throw new Error("Expiration Date is not specified");
+    // }
+    if (!req.body.type) {
+      throw new Error("Type is not specified");
+    }
+
     console.log("deepa was here");
     let model = new notification({
-      message: req.query.message,
-      expiration_date: req.query.expiration_date,
-      expired: false
+      message: req.body.message,
+      expiration_date: req.body.expiration_date,
+      type: req.body.type,
+      expired: false,
+      url: req.body.url
     });
 
     model
@@ -29,8 +35,9 @@ router.get("/", (req, res) => {
         pusher.triggerNotification(
           doc.id,
           doc.createdAt,
+          doc.type,
           doc.message,
-          req.query.url
+          doc.url
         );
         res.status(201).send("SUCCESS");
       })
@@ -43,16 +50,21 @@ router.get("/", (req, res) => {
     // res.send("SUCCESS");
   } catch (e) {
     console.error(e);
-    res.status(500).send(e.message);
+    // res.status(500).send(e.message);
+    return res.status(400).send(e.message);
   }
 });
 
-router.post("/", (req, res) => {
-  if (!req.body.message) {
-    return res.status(400).send("Message is required");
-  }
-  let model = new notification({ message: req.body.message });
-});
+// router.post("/", (req, res) => {
+//   if (!req.body.message) {
+//     return res.status(400).send("Message is required");
+//   }
+//   let model = new notification({
+//     message: req.body.message,
+//     expiration_date: req.body.expiration,
+//     type: req.body.type
+//   });
+// });
 
 router.post("/acknowledge", (req, res) => {
   try {

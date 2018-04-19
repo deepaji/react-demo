@@ -1,6 +1,6 @@
 import React from "react";
 import request from "superagent";
-import { Grid, Form, Input, Button } from "semantic-ui-react";
+import { Grid, Form, Input, Button, Select } from "semantic-ui-react";
 
 export default class Notification extends React.Component {
   constructor() {
@@ -10,6 +10,13 @@ export default class Notification extends React.Component {
     this.handleMessageInput = this.handleMessageInput.bind(this);
     this.handleNotify = this.handleNotify.bind(this);
     this.handleURLInput = this.handleURLInput.bind(this);
+    this.handleNotificationTypeSelect = this.handleNotificationTypeSelect.bind(
+      this
+    );
+  }
+
+  handleNotificationTypeSelect(e, { name, value }) {
+    this.setState({ type: value });
   }
 
   handleURLInput(event) {
@@ -26,10 +33,11 @@ export default class Notification extends React.Component {
   handleNotify(event) {
     // http://localhost:3000/notify?message=hello%20world
     request
-      .get("http://localhost:3000/api/notify")
-      .query({
+      .post("http://localhost:3000/api/notify")
+      .send({
         message: this.state.message,
-        url: this.state.url
+        url: this.state.url,
+        type: this.state.type
       })
       .end(function(err, res) {
         if (err) {
@@ -45,6 +53,22 @@ export default class Notification extends React.Component {
       <Form>
         <Form.Group widths={"equal"}>
           <div>
+            <Select
+              placeholder="Select a notification type"
+              options={[
+                {
+                  text: "Informational Message",
+                  value: "info",
+                  key: "info"
+                },
+                {
+                  text: "Status Check",
+                  value: "status-check",
+                  key: "status-check"
+                }
+              ]}
+              onChange={this.handleNotificationTypeSelect}
+            />
             <Input
               id="message"
               type="text"

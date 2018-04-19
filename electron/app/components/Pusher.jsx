@@ -137,13 +137,17 @@ class Pusher extends Component {
             </a>
           </Table.Cell>
           <Table.Cell>
-            <Button
-              itemID={item.id}
-              disabled={item.dismiss}
-              onClick={this.handleAcceptClick}
-            >
-              Accept
-            </Button>
+            {item.type === "info" ? (
+              <Button
+                itemID={item.id}
+                disabled={item.dismiss}
+                onClick={this.handleAcceptClick}
+              >
+                Accept
+              </Button>
+            ) : (
+              ""
+            )}
             <Button
               itemID={item.id}
               disabled={item.dismiss}
@@ -168,10 +172,10 @@ class Pusher extends Component {
         <Table>
           <Table.Header>
             <Table.Row>
-              <Table.HeaderCell width={6}>Id</Table.HeaderCell>
+              <Table.HeaderCell width={3}>Id</Table.HeaderCell>
               <Table.HeaderCell width={2}>Timestamp</Table.HeaderCell>
               <Table.HeaderCell width={5}>Message</Table.HeaderCell>
-              <Table.HeaderCell width={4}>URL</Table.HeaderCell>
+              <Table.HeaderCell width={3}>URL</Table.HeaderCell>
               <Table.HeaderCell width={3}>Actions</Table.HeaderCell>
             </Table.Row>
           </Table.Header>
