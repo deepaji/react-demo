@@ -16,6 +16,20 @@ class NotificationClient {
     });
   }
 
+  updateNotification(email, machineId, notificationId, report) {
+    return new Promise((resolve, reject) => {
+      request
+        .patch(`${config.host}/api/notify/report`)
+        .send({ email, machineId, notificationId, report })
+        .end((err, res) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(res);
+        });
+    });
+  }
+
   acceptNotification(email, machineId, notificationId) {
     return new Promise((resolve, reject) => {
       request

@@ -46,11 +46,20 @@ export function acceptNotification(data, email, machineId) {
   };
 }
 
-export function updateNotification(item, update) {
-  return {
-    type: "UPDATE_NOTIFICATION",
-    originalData: item,
-    modifiedData: update
+export function updateNotification(email, machineId, item, update) {
+  return function(dispatch) {
+    notificationClient
+      .updateNotification(email, machineId, item.id, update.result)
+      .then(() => {
+        dispatch({
+          type: "UPDATE_NOTIFICATION",
+          originalData: item,
+          modifiedData: update
+        });
+      })
+      .catch(err => {
+        console.error(err);
+      });
   };
 }
 

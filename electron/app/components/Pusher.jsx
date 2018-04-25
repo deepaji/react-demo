@@ -36,7 +36,14 @@ class Pusher extends Component {
     });
 
     ipcRenderer.on("runStatusCheck-reply", (event, arg) => {
-      this.props.updateNotification(arg.data, { result: arg.result });
+      this.props.updateNotification(
+        this.props.email,
+        window.meta.machineId,
+        arg.data,
+        {
+          result: arg.result
+        }
+      );
       //this.props.updateResultInNotification(arg.id, arg.result);
     });
 

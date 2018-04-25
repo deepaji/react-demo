@@ -145,6 +145,51 @@ router.patch("/accept", (req, res) => {
   }
 });
 
+router.patch("/report", (req, res) => {
+  try {
+    // Validate body
+    if (!req.body.email) {
+      throw new Error("Email is required");
+    }
+
+    if (!req.body.machineId) {
+      throw new Error("MachineId is required");
+    }
+
+    if (!req.body.notificationId) {
+      throw new Error("NotificationId is required");
+    }
+
+    if (!req.body.report) {
+      throw new Error("Report is required");
+    }
+
+    let model = machineNotification
+      .findOneAndUpdate(
+        {
+          email: req.body.email,
+          machineId: req.body.machineId,
+          notificationId: req.body.notificationId
+        },
+        {
+          action: "report",
+          report: req.body.report
+        }
+      )
+      .then(doc => {
+        console.log(doc);
+        res.status(204).send("SUCCESS");
+      })
+      .catch(err => {
+        console.error(err);
+        res.status(500).send(err);
+      });
+  } catch (e) {
+    console.error(e);
+    res.status(400).send(e.message);
+  }
+});
+
 module.exports = router;
 
 // module.exports = function(app) {

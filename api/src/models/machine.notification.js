@@ -7,8 +7,16 @@ let MachineNotificationSchema = new mongoose.Schema(
     notificationId: mongoose.Schema.Types.ObjectId,
     action: {
       type: String,
-      enum: ["dispatched", "offline", "acknowledged", "accepted", "dismissed"]
-    }
+      enum: [
+        "dispatched",
+        "offline",
+        "acknowledged",
+        "accepted",
+        "report",
+        "dismissed"
+      ]
+    },
+    report: Object
   },
   {
     timestamps: true

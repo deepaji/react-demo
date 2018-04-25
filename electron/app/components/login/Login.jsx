@@ -63,6 +63,7 @@ class Login extends Component {
           <Form.Field>
             <label>Email: </label>
             <input
+              ref={e => (this.inputEmail = e)}
               placeholder="Enter your email address"
               onChange={this.handleEmailInput.bind(this)}
             />
@@ -75,6 +76,10 @@ class Login extends Component {
         </Form>
       </div>
     );
+  }
+
+  componentDidMount() {
+    this.inputEmail.focus();
   }
 }
 

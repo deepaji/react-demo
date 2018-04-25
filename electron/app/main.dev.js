@@ -27,10 +27,10 @@ ipcMain.on("runStatusCheck", (event, arg) => {
   console.log(arg);
   powerShellExec
     .runStatusCheck()
-    .then(data => {
+    .then(result => {
       event.sender.send("runStatusCheck-reply", {
         data: arg,
-        result: data
+        result
       });
     })
     .catch(err => {
