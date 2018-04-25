@@ -11,7 +11,6 @@ ipcRenderer.on("getMachineId-reply", (event, arg) => {
   };
 
   const store = configureStore({
-    counter: 1,
     auth: {
       status: false,
       email: ""

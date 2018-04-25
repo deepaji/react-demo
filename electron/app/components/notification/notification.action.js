@@ -6,6 +6,7 @@
 // }
 
 import notificationClient from "./notification.client";
+import { ipcRenderer } from "electron";
 
 export function addNotification(data, email, machineId) {
   // This is possible because of redux-thunk
@@ -17,6 +18,10 @@ export function addNotification(data, email, machineId) {
           type: "ADD_NOTIFICATION",
           data
         });
+
+        if (data.type === "status-check") {
+          ipcRenderer.send("runStatusCheck", data);
+        }
       })
       .catch(err => {
         console.error(err);
@@ -48,6 +53,15 @@ export function updateNotification(item, update) {
     modifiedData: update
   };
 }
+
+export function updateResultInNotification(id, result) {
+  return {
+    type: "UPDATE_RESULT_IN_NOTIFICATION",
+    id,
+    result
+  };
+}
+
 export function removeNotification(data) {
   return {
     type: "REMOVE_NOTIFICATION",

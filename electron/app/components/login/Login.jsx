@@ -50,7 +50,7 @@ class Login extends Component {
     console.log(this.props.isAuthenticated);
     if (this.props.isAuthenticated) {
       // print something
-      return <Redirect to="/" />;
+      return <Redirect to="/pusher" />;
     }
 
     return (

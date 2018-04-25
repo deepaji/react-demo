@@ -2,6 +2,7 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
+import { ipcRenderer } from "electron";
 
 import {
   acceptNotification,
@@ -11,6 +12,7 @@ import {
 
 import PusherJS from "pusher-js";
 import { Container, Table, Button } from "semantic-ui-react";
+import { updateNotification } from "./notification/notification.action";
 
 // Renderer needs to use .remote
 let { BrowserWindow } = require("electron").remote;
@@ -25,11 +27,17 @@ class Pusher extends Component {
     this.handleLinkClick = this.handleLinkClick.bind(this);
     this.handleDismissClick = this.handleDismissClick.bind(this);
     this.handleAcceptClick = this.handleAcceptClick.bind(this);
+    this.handleViewReport = this.handleViewReport.bind(this);
   }
 
   componentWillMount() {
     this.pusher = new PusherJS("a8caed348926f9c08aba", {
       cluster: "us2"
+    });
+
+    ipcRenderer.on("runStatusCheck-reply", (event, arg) => {
+      this.props.updateNotification(arg.data, { result: arg.result });
+      //this.props.updateResultInNotification(arg.id, arg.result);
     });
 
     this.channel = this.pusher.subscribe("mychannel");
@@ -124,6 +132,59 @@ class Pusher extends Component {
     }
   }
 
+  handleViewReport(item) {
+    if (item.result) {
+      console.log("show report", item.result);
+    }
+  }
+
+  renderActions(item) {
+    let btnList = [];
+
+    switch (item.type) {
+      case "info":
+        btnList.push(
+          <Button
+            key={item.id + "accept"}
+            itemID={item.id}
+            disabled={item.dismiss}
+            onClick={this.handleAcceptClick}
+          >
+            Accept
+          </Button>
+        );
+        break;
+      case "status-check":
+        if (item.result) {
+          btnList.push(
+            <Button
+              key={item.id + "view-report"}
+              itemID={item.id}
+              disabled={item.dismiss}
+              onClick={e => {
+                this.handleViewReport(item);
+              }}
+            >
+              View Report
+            </Button>
+          );
+        }
+    }
+
+    btnList.push(
+      <Button
+        key={item.id + "dismiss"}
+        itemID={item.id}
+        disabled={item.dismiss}
+        onClick={this.handleDismissClick}
+      >
+        Dismiss
+      </Button>
+    );
+
+    return btnList;
+  }
+
   renderNotificationsList(list) {
     let result = list.map((item, index) => {
       return (
@@ -136,26 +197,7 @@ class Pusher extends Component {
               {item.url}
             </a>
           </Table.Cell>
-          <Table.Cell>
-            {item.type === "info" ? (
-              <Button
-                itemID={item.id}
-                disabled={item.dismiss}
-                onClick={this.handleAcceptClick}
-              >
-                Accept
-              </Button>
-            ) : (
-              ""
-            )}
-            <Button
-              itemID={item.id}
-              disabled={item.dismiss}
-              onClick={this.handleDismissClick}
-            >
-              Dismiss
-            </Button>
-          </Table.Cell>
+          <Table.Cell>{this.renderActions(item)}</Table.Cell>
         </Table.Row>
       );
     });
@@ -218,5 +260,6 @@ function mapGlobalStateToProps(globalState) {
 export default connect(mapGlobalStateToProps, {
   acceptNotification,
   addNotification,
-  removeNotification
+  removeNotification,
+  updateNotification
 })(Pusher);

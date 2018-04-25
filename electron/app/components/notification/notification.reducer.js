@@ -11,9 +11,18 @@ export function notificationsReducer(notificationsList = [], action) {
       );
 
       let filteredResult = notificationsList.filter(
-        notification => notification.data !== action.originalData
+        notification => notification.id !== action.originalData.id
       );
       return [].concat(filteredResult, updatedData);
+
+    // case "UPDATE_RESULT_IN_NOTIFICATION":
+    //   let filteredResult = notificationsList.filter(
+    //     notification => notification.data !== action.originalData
+    //   );
+
+    //   let item = notificationsList.find(i => i.id === action.id);
+
+    //   item.result = action.result;
 
     case "ACCEPT_NOTIFICATION":
     case "REMOVE_NOTIFICATION":

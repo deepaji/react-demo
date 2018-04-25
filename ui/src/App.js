@@ -1,24 +1,26 @@
-import React, { Component } from 'react'
+import React, { Component } from "react";
 // import logo from './logo.svg'
-import Counter from './counter'
-import Notification from './notification'
-import { Responsive, Header, Segment, Grid, Container } from 'semantic-ui-react'
+import Notification from "./notification";
+import {
+  Responsive,
+  Header,
+  Segment,
+  Grid,
+  Container
+} from "semantic-ui-react";
 
 //const App = () => "TEST"
 
 class App extends Component {
-  render () {
+  render() {
     return (
-      <Container style={{marginTop: '4em'}}>
-        <Segment padded={'very'}>
-          <Header as='h2'>Notify Client</Header>
-          <Notification/>
-        </Segment>
-        <Segment padded={'very'}>
-          <Counter seed={10}/>
+      <Container style={{ marginTop: "4em" }}>
+        <Segment padded={"very"}>
+          <Header as="h2">Notify Client</Header>
+          <Notification />
         </Segment>
       </Container>
-    )
+    );
   }
 }
 
@@ -36,4 +38,4 @@ class App extends Component {
     );
 
 */
-export default App
+export default App;

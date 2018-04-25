@@ -3,7 +3,6 @@ import React, { Component } from "react";
 import { Switch, Route } from "react-router";
 import App from "./containers/App";
 import HomePage from "./containers/HomePage";
-import CounterPage from "./containers/CounterPage";
 import PusherPage from "./containers/PusherPage";
 import Login from "./components/login/Login";
 import { Redirect, withRouter } from "react-router";
@@ -55,11 +54,6 @@ export class Routes extends Component {
       <App>
         <Switch>
           <Route path="/login" component={Login} />
-          <PrivateRoute
-            path="/counter"
-            component={CounterPage}
-            {...this.props}
-          />
           <PrivateRoute path="/pusher" component={PusherPage} {...this.props} />
           <PrivateRoute path="/" component={HomePage} {...this.props} />
         </Switch>

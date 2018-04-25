@@ -14,12 +14,32 @@ import { app, BrowserWindow } from "electron";
 import MenuBuilder from "./menu";
 import { machineIdSync } from "node-machine-id";
 import { ipcMain } from "electron";
+import powerShellExec from "./lib/powershell.exec";
 
 let machineId = machineIdSync();
 console.log(machineId);
 
 ipcMain.on("getMachineId", (event, arg) => {
   event.sender.send("getMachineId-reply", machineId);
+});
+
+ipcMain.on("runStatusCheck", (event, arg) => {
+  console.log(arg);
+  powerShellExec
+    .runStatusCheck()
+    .then(data => {
+      event.sender.send("runStatusCheck-reply", {
+        data: arg,
+        result: data
+      });
+    })
+    .catch(err => {
+      console.error(err);
+      event.sender.send("runStatusCheck-reply", {
+        data: arg,
+        result: err
+      });
+    });
 });
 
 let mainWindow = null;
