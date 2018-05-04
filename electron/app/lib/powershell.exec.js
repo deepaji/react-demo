@@ -11,6 +11,8 @@ class PowerShellExec {
       child.stdout.on("data", data => {
         result += data;
         console.log(data.toString());
+        var returnedResult = JSON.parse(data.toString());
+        console.log(returnedResult.ReadableCreationTime);
       });
 
       child.stderr.on("data", err => {
@@ -20,7 +22,16 @@ class PowerShellExec {
 
       child.on("exit", () => {
         console.log("Powershell script finished!");
-        resolve(result.toString());
+        try {
+          console.log(returnedResult);
+
+          resolve("done");
+        } catch (error) {
+          console.log(
+            "unable to parse the returned result " + result.toString()
+          );
+          reject("unable to parse the returned result");
+        }
       });
 
       child.stdin.end();
