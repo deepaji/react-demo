@@ -1,41 +1,49 @@
 // @flow
-import React, { Component } from "react";
-import { Link } from "react-router-dom";
-import { connect } from "react-redux";
-import { ipcRenderer } from "electron";
+import React, { Component } from 'react'
+import { Link } from 'react-router-dom'
+import { connect } from 'react-redux'
+import { ipcRenderer } from 'electron'
 
 import {
   acceptNotification,
   addNotification,
-  removeNotification
-} from "./notification/notification.action";
+  removeNotification,
+  updateNotification,
+  fetchNotifications
+} from './notification/notification.action'
 
-import PusherJS from "pusher-js";
-import { Container, Table, Button } from "semantic-ui-react";
-import { updateNotification } from "./notification/notification.action";
+import PusherJS from 'pusher-js'
+import { Container, Table, Button } from 'semantic-ui-react'
+import ViewReport from './view.report.jsx'
 
 // Renderer needs to use .remote
-let { BrowserWindow } = require("electron").remote;
+let {BrowserWindow} = require('electron').remote
 
 class Pusher extends Component {
-  constructor(props) {
-    super(props);
+  constructor (props) {
+    super(props)
 
-    console.log("In constructor");
-    PusherJS.logToConsole = true;
+    this.state = {
+      report: null
+    }
 
-    this.handleLinkClick = this.handleLinkClick.bind(this);
-    this.handleDismissClick = this.handleDismissClick.bind(this);
-    this.handleAcceptClick = this.handleAcceptClick.bind(this);
-    this.handleViewReport = this.handleViewReport.bind(this);
+    console.log('In constructor')
+    PusherJS.logToConsole = true
+
+    this.handleLinkClick = this.handleLinkClick.bind(this)
+    this.handleDismissClick = this.handleDismissClick.bind(this)
+    this.handleAcceptClick = this.handleAcceptClick.bind(this)
+    this.handleViewReport = this.handleViewReport.bind(this)
   }
 
-  componentWillMount() {
-    this.pusher = new PusherJS("a8caed348926f9c08aba", {
-      cluster: "us2"
-    });
+  componentWillMount () {
+    this.props.fetchNotifications(this.props.email, window.meta.machineId)
 
-    ipcRenderer.on("runStatusCheck-reply", (event, arg) => {
+    this.pusher = new PusherJS('a8caed348926f9c08aba', {
+      cluster: 'us2'
+    })
+
+    ipcRenderer.on('runStatusCheck-reply', (event, arg) => {
       this.props.updateNotification(
         this.props.email,
         window.meta.machineId,
@@ -43,16 +51,16 @@ class Pusher extends Component {
         {
           result: arg.result
         }
-      );
+      )
       //this.props.updateResultInNotification(arg.id, arg.result);
-    });
+    })
 
-    this.channel = this.pusher.subscribe("mychannel");
+    this.channel = this.pusher.subscribe('mychannel')
 
     this.channel.bind(
-      "myevent",
-      function(data) {
-        console.log("Message received: ", data.message);
+      'myevent',
+      function (data) {
+        console.log('Message received: ', data.message)
 
         //let notifications = this.state.notifications.concat(data);
 
@@ -65,22 +73,22 @@ class Pusher extends Component {
           data,
           this.props.email,
           window.meta.machineId
-        );
+        )
 
         // Renderer Notification
-        let myNotification = new Notification("Message Received", {
+        let myNotification = new Notification('Message Received', {
           body: data.message
-        });
+        })
 
         myNotification.onclick = () => {
-          console.log("Notification clicked");
+          console.log('Notification clicked')
 
           // this.setState({
           //   url: this.state.data.url
           // });
-        };
+        }
       }.bind(this)
-    );
+    )
   }
 
   // renderNotificationsList(list) {
@@ -95,26 +103,26 @@ class Pusher extends Component {
   //   return result;
   // }
 
-  handleLinkClick(e) {
-    e.preventDefault();
+  handleLinkClick (e) {
+    e.preventDefault()
 
-    let win = new BrowserWindow({ width: 800, height: 600 });
-    win.on("closed", () => {
-      win = null;
-    });
+    let win = new BrowserWindow({width: 800, height: 600})
+    win.on('closed', () => {
+      win = null
+    })
 
     // Load a remote URL
-    win.loadURL(e.target.href);
+    win.loadURL(e.target.href)
 
     // Or load a local HTML file
     // win.loadURL(`file://${__dirname}/app/index.html`)
   }
 
-  handleAcceptClick(e) {
-    let id = e.target.attributes["itemid"].value;
+  handleAcceptClick (e) {
+    let id = e.target.attributes['itemid'].value
 
-    let notifications = this.props.notificationList;
-    let item = notifications.find(item => item.id === id);
+    let notifications = this.props.notificationList
+    let item = notifications.find(item => item.id === id)
 
     if (item) {
       //item.dismiss = true;
@@ -124,75 +132,86 @@ class Pusher extends Component {
         item,
         this.props.email,
         window.meta.machineId
-      );
+      )
     }
   }
 
-  handleDismissClick(e) {
-    let id = e.target.attributes["itemid"].value;
+  handleDismissClick (e) {
+    let id = e.target.attributes['itemid'].value
 
-    let notifications = this.props.notificationList;
-    let item = notifications.find(item => item.id === id);
+    let notifications = this.props.notificationList
+    let item = notifications.find(item => item.id === id)
 
     if (item) {
-      this.props.removeNotification(item);
+      this.props.removeNotification(
+        this.props.email,
+        window.meta.machineId,
+        item
+      )
     }
   }
 
-  handleViewReport(item) {
+  handleViewReport (item) {
     if (item.result) {
-      console.log("show report", item.result);
+      console.log('show report', item.result)
+      this.setState({report: item, showReport: true})
     }
   }
 
-  renderActions(item) {
-    let btnList = [];
+  renderActions (item) {
+    let btnList = []
 
     switch (item.type) {
-      case "info":
+      case 'info':
         btnList.push(
           <Button
-            key={item.id + "accept"}
+            key={item.id + 'accept'}
             itemID={item.id}
             disabled={item.dismiss}
             onClick={this.handleAcceptClick}
           >
             Accept
           </Button>
-        );
-        break;
-      case "status-check":
+        )
+        break
+      case 'status-check':
+        if (!item.result) {
+          item.result = {
+            content: '123123'
+          }
+        }
+
         if (item.result) {
           btnList.push(
             <Button
-              key={item.id + "view-report"}
+              key={item.id + 'view-report'}
               itemID={item.id}
               disabled={item.dismiss}
               onClick={e => {
-                this.handleViewReport(item);
+                this.handleViewReport(item)
               }}
             >
               View Report
             </Button>
-          );
+          )
         }
     }
 
     btnList.push(
       <Button
-        key={item.id + "dismiss"}
+        key={item.id + 'dismiss'}
         itemID={item.id}
         disabled={item.dismiss}
         onClick={this.handleDismissClick}
       >
         Dismiss
       </Button>
-    );
+    )
 
-    return btnList;
+    return btnList
   }
 
-  renderNotificationsList(list) {
+  renderNotificationsList (list) {
     let result = list.map((item, index) => {
       return (
         <Table.Row key={index} negative={item.dismiss}>
@@ -206,13 +225,24 @@ class Pusher extends Component {
           </Table.Cell>
           <Table.Cell>{this.renderActions(item)}</Table.Cell>
         </Table.Row>
-      );
-    });
+      )
+    })
 
-    return result;
+    return result
   }
 
-  render() {
+  render () {
+    if (this.state.showReport) {
+      return <ViewReport open={this.state.showReport}
+                         email={this.props.email}
+                         machineId={window.meta.machineId}
+                         item={this.state.report}
+                         close={() => {
+                           this.setState({showReport: false, item: null})
+                         }
+                         }/>
+    }
+
     return (
       <Container data-tid="container">
         <h2>Pusher</h2>
@@ -234,39 +264,29 @@ class Pusher extends Component {
           </Table.Body>
         </Table>
       </Container>
-    );
+    )
   }
 
-  /*
-    <webview
-            id="foo"
-            style={{
-              width: "100px",
-              height: "100px"
-            }}
-            src={url}
-          />
-          */
-
-  componentWillUnmount() {
+  componentWillUnmount () {
     if (this.pusher) {
-      this.channel.unbind();
-      this.pusher.unsubscribe();
-      this.pusher.disconnect();
+      this.channel.unbind()
+      this.pusher.unsubscribe()
+      this.pusher.disconnect()
     }
   }
 }
 
-function mapGlobalStateToProps(globalState) {
+function mapGlobalStateToProps (globalState) {
   return {
     email: globalState.auth.email,
     notificationList: globalState.notifications
-  };
+  }
 }
 
 export default connect(mapGlobalStateToProps, {
   acceptNotification,
   addNotification,
   removeNotification,
-  updateNotification
-})(Pusher);
+  updateNotification,
+  fetchNotifications
+})(Pusher)

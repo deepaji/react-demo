@@ -1,59 +1,105 @@
-let notification = require("../models/notification");
-let machineNotification = require("../models/machine.notification");
-let express = require("express");
-let router = express.Router();
-let pusher = require("../notify");
+let notification = require('../models/notification')
+let machineNotification = require('../models/machine.notification')
+let express = require('express')
+let router = express.Router()
+let pusher = require('../notify')
 
-router.post("/", (req, res) => {
+router.get('/', (req, res) => {
+  try {
+    if (!req.query.machineId) {
+      throw new Error('MachineId is required')
+    }
+
+    if (!req.query.email) {
+      throw new Error('Email is required')
+    }
+
+    machineNotification
+      .find(
+        {
+          email: req.query.email,
+          machineId: req.query.machineId
+        }
+      )
+      .sort({createdAt: 'desc'})
+      .nin('action', ['dismissed', 'accepted'])
+      .populate('notificationId')
+      .then(docs => {
+        // console.log(docs)
+        let data = docs.map(d => {
+          let item = d.notificationId[0]
+          return {
+            id: item._id,
+            date: item.createdAt,
+            url: item.url,
+            type: item.type,
+            message: item.message
+          }
+        })
+
+        //data = data.filter(d => {
+        //   return d.expiration_date >= Date.now()
+        // })
+
+        res.send(data)
+      })
+  }
+  catch (e) {
+    console.error(e)
+    res.status(400).send(e.message)
+  }
+})
+
+router.post('/', (req, res) => {
   try {
     if (!req.body.message) {
-      throw new Error("Message is not specified");
+      throw new Error('Message is not specified')
     }
     if (!req.body.url) {
-      throw new Error("URL is not specified");
+      throw new Error('URL is not specified')
     }
     // if (!req.body.expiration_date) {
     //   throw new Error("Expiration Date is not specified");
     // }
     if (!req.body.type) {
-      throw new Error("Type is not specified");
+      throw new Error('Type is not specified')
     }
 
-    console.log("deepa was here");
+    console.log('deepa was here')
     let model = new notification({
       message: req.body.message,
       expiration_date: req.body.expiration_date,
       type: req.body.type,
       expired: false,
       url: req.body.url
-    });
+    })
 
     model
       .save()
       .then(doc => {
-        console.log(doc);
+        console.log(doc)
         pusher.triggerNotification(
           doc.id,
           doc.createdAt,
           doc.type,
           doc.message,
           doc.url
-        );
-        res.status(201).send("SUCCESS");
+        )
+        res.status(201).send('SUCCESS')
       })
       .catch(err => {
-        console.error(err);
-        res.status(500).send(err);
-      });
+        console.error(err)
+        res.status(400).send(err)
+      })
 
     // pusher.triggerNotification(req.query.message, req.query.url);
     // res.send("SUCCESS");
   } catch (e) {
-    console.error(e);
-    // res.status(500).send(e.message);
-    return res.status(400).send(e.message);
+    console.error(e)
+    // res.status(400).send(e.message);
+    return res.status(400).send(e.message)
   }
-});
+})
 
 // router.post("/", (req, res) => {
 //   if (!req.body.message) {
@@ -66,19 +112,19 @@ router.post("/", (req, res) => {
 //   });
 // });
 
-router.post("/acknowledge", (req, res) => {
+router.post('/acknowledge', (req, res) => {
   try {
     // Validate body
     if (!req.body.email) {
-      return res.status(400).send("Email is required");
+      return res.status(400).send('Email is required')
     }
 
     if (!req.body.machineId) {
-      return res.status(400).send("MachineId is required");
+      return res.status(400).send('MachineId is required')
     }
 
     if (!req.body.notificationId) {
-      return res.status(400).send("NotificationId is required");
+      return res.status(400).send('NotificationId is required')
     }
 
     // Add to machine-notifications collection
@@ -86,38 +132,38 @@ router.post("/acknowledge", (req, res) => {
       email: req.body.email,
       machineId: req.body.machineId,
       notificationId: req.body.notificationId,
-      action: "acknowledged"
-    });
+      action: 'acknowledged'
+    })
 
     model
       .save()
       .then(doc => {
-        console.log(doc);
-        res.status(201).send("SUCCESS");
+        console.log(doc)
+        res.status(201).send('SUCCESS')
       })
       .catch(err => {
-        console.error(err);
-        res.status(500).send(err);
-      });
+        console.error(err)
+        res.status(400).send(err)
+      })
   } catch (e) {
-    console.error(e);
-    res.status(500).send(e.message);
+    console.error(e)
+    res.status(400).send(e.message)
   }
-});
+})
 
-router.patch("/accept", (req, res) => {
+router.patch('/accept', (req, res) => {
   try {
     // Validate body
     if (!req.body.email) {
-      return res.status(400).send("Email is required");
+      return res.status(400).send('Email is required')
     }
 
     if (!req.body.machineId) {
-      return res.status(400).send("MachineId is required");
+      return res.status(400).send('MachineId is required')
     }
 
     if (!req.body.notificationId) {
-      return res.status(400).send("NotificationId is required");
+      return res.status(400).send('NotificationId is required')
     }
 
     let model = machineNotification
@@ -128,40 +174,37 @@ router.patch("/accept", (req, res) => {
           notificationId: req.body.notificationId
         },
         {
-          action: "accepted"
+          action: 'accepted'
         }
       )
       .then(doc => {
-        console.log(doc);
-        res.status(204).send("SUCCESS");
+        console.log(doc)
+        res.status(204).send('SUCCESS')
       })
       .catch(err => {
-        console.error(err);
-        res.status(500).send(err);
-      });
+        console.error(err)
+        res.status(400).send(err)
+      })
   } catch (e) {
-    console.error(e);
-    res.status(500).send(e.message);
+    console.error(e)
+    res.status(400).send(e.message)
   }
-});
+})
 
-router.patch("/report", (req, res) => {
+
+router.patch('/dismiss', (req, res) => {
   try {
     // Validate body
     if (!req.body.email) {
-      throw new Error("Email is required");
+      return res.status(400).send('Email is required')
     }
 
     if (!req.body.machineId) {
-      throw new Error("MachineId is required");
+      return res.status(400).send('MachineId is required')
     }
 
     if (!req.body.notificationId) {
-      throw new Error("NotificationId is required");
-    }
-
-    if (!req.body.report) {
-      throw new Error("Report is required");
+      return res.status(400).send('NotificationId is required')
     }
 
     let model = machineNotification
@@ -172,27 +215,66 @@ router.patch("/report", (req, res) => {
           notificationId: req.body.notificationId
         },
         {
-          action: "report",
+          action: 'dismissed'
+        }
+      )
+      .then(doc => {
+        console.log(doc)
+        res.status(204).send('SUCCESS')
+      })
+      .catch(err => {
+        console.error(err)
+        res.status(400).send(err)
+      })
+  } catch (e) {
+    console.error(e)
+    res.status(400).send(e.message)
+  }
+})
+
+router.patch('/report', (req, res) => {
+  try {
+    // Validate body
+    if (!req.body.email) {
+      throw new Error('Email is required')
+    }
+
+    if (!req.body.machineId) {
+      throw new Error('MachineId is required')
+    }
+
+    if (!req.body.notificationId) {
+      throw new Error('NotificationId is required')
+    }
+
+    if (!req.body.report) {
+      throw new Error('Report is required')
+    }
+
+    let model = machineNotification
+      .findOneAndUpdate(
+        {
+          email: req.body.email,
+          machineId: req.body.machineId,
+          notificationId: req.body.notificationId
+        },
+        {
+          action: 'report',
           report: req.body.report
         }
       )
       .then(doc => {
-        console.log(doc);
-        res.status(204).send("SUCCESS");
+        console.log(doc)
+        res.status(204).send('SUCCESS')
       })
       .catch(err => {
-        console.error(err);
-        res.status(500).send(err);
-      });
+        console.error(err)
+        res.status(400).send(err)
+      })
   } catch (e) {
-    console.error(e);
-    res.status(400).send(e.message);
+    console.error(e)
+    res.status(400).send(e.message)
   }
-});
+})
 
-module.exports = router;
-
-// module.exports = function(app) {
-//   // /api/v1/notify/
-//   //app.get("/", (req, res));
-// };
+module.exports = router

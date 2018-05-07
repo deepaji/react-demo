@@ -4,7 +4,7 @@ let MachineNotificationSchema = new mongoose.Schema(
   {
     machineId: String,
     email: String,
-    notificationId: mongoose.Schema.Types.ObjectId,
+    notificationId: [{type: mongoose.Schema.Types.ObjectId, ref: 'Notification'}],
     action: {
       type: String,
       enum: [
