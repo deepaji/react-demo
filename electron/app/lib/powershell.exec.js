@@ -29,7 +29,10 @@ class PowerShellExec {
           try {
             console.log(returnedResult)
 
-            resolve('done')
+            resolve({
+              content: returnedResult,
+              status: 'SUCCESS'
+            })
           } catch (error) {
             console.log(
               'unable to parse the returned result ' + result.toString()
@@ -54,6 +57,7 @@ class PowerShellExec {
       catch (e) {
         console.error(e)
         resolve({
+          status: 'ERROR',
           error: e
         })
       }
@@ -88,7 +92,10 @@ class PowerShellExec {
           try {
             console.log(returnedResult)
 
-            resolve('done')
+            resolve({
+              content: returnedResult,
+              status: 'SUCCESS'
+            })
           } catch (error) {
             console.log(
               'unable to parse the returned result ' + result.toString()
@@ -113,6 +120,7 @@ class PowerShellExec {
       catch (e) {
         console.error(e)
         resolve({
+          status: 'ERROR',
           error: e
         })
       }
@@ -121,7 +129,6 @@ class PowerShellExec {
 
   runStatusCheck () {
     console.log('curr working dir', process.cwd())
-debugger
     return new Promise((resolve, reject) => {
       Promise.all([
         this.getLastUpdate(),

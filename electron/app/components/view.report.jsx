@@ -20,21 +20,18 @@ class ViewReport extends Component {
   }
 
   render () {
-    let {result} = this.props.item
+    let {result} = this.props
 
-    // let style = {}
-    //
-    // if(result.success) {
-    //   style.color = 'red'
-    // }
+    // result is an array of {status, content}
+
     return <Modal open={this.state.open}
                   onClose={this.close}>
       <Modal.Header>Report</Modal.Header>
       <Modal.Content>
         <Modal.Description>
-         <p>
-           {result ? result.content : 'NO CONTENT'}
-         </p>
+          {result.map(r => {
+            return <p style={{color: r.status === 'SUCCESS' ? 'green' : 'red'}}>{r.content}</p>
+          })}
         </Modal.Description>
       </Modal.Content>
       <Modal.Actions>

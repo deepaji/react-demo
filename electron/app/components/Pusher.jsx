@@ -154,7 +154,7 @@ class Pusher extends Component {
   handleViewReport (item) {
     if (item.result) {
       console.log('show report', item.result)
-      this.setState({report: item, showReport: true})
+      this.setState({result: item, showReport: true})
     }
   }
 
@@ -236,7 +236,7 @@ class Pusher extends Component {
       return <ViewReport open={this.state.showReport}
                          email={this.props.email}
                          machineId={window.meta.machineId}
-                         item={this.state.report}
+                         result={this.state.result}
                          close={() => {
                            this.setState({showReport: false, item: null})
                          }
